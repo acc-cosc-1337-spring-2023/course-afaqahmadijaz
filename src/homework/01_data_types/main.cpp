@@ -16,6 +16,7 @@ int main()
     cin >> num1;
 	int result = multiply_numbers(num1);
 	cout << "The result of multiplying the number with 5 is: " << result << endl;
+	
 
 	return 0;
 }
