@@ -1,52 +1,74 @@
-#include "tic_tac_toe.h"
 #include <iostream>
+#include <memory>
+#include <string>
+#include "tic_tac_toe.h"
+#include "tic_tac_toe_3.h"
+#include "tic_tac_toe_4.h"
+#include "tic_tac_toe_manager.h"
 
+using namespace std;
 
-void TicTacToe::start_game(std::string first_player) {
-    player = first_player;
-    clear_board();
-}
+bool continue_game();
 
-void TicTacToe::mark_board(int position) {
-    pegs[position - 1] = player;
-    set_next_player();
-}
+int main()
+{
+    unique_ptr<TicTacToeManager> manager = make_unique<TicTacToeManager>();
+    string player1;
+    string player2;
+    char turn;
 
-std::string TicTacToe::get_player() const {
-    return player;
-}
+    do
+    {
+        cout << "Enter player 1 name: ";
+        cin >> player1;
+        cout << "Enter player 2 name: ";
+        cin >> player2;
 
-void TicTacToe::display_board() const {
-    std::cout << "-------------\n";
-    for (int i = 0; i < 9; i += 3) {
-        std::cout << "| " << pegs[i] << " | " << pegs[i+1] << " | " << pegs[i+2] << " |\n";
-        std::cout << "-------------\n";
-    }
-}
+        do
+        {
+            cout << "Enter starting player (X or O): ";
+            cin >> turn;
+        } while (turn != 'X' && turn != 'O');
 
-bool TicTacToe::game_over() const {
-    return check_board_full();
-}
+        unique_ptr<TicTacToe> game;
 
-void TicTacToe::set_next_player() {
-    if (player == "X") {
-        player = "O";
-    } else {
-        player = "X";
-    }
-}
+        int choice;
+        cout << "Select the board size (3 or 4): ";
+        cin >> choice;
 
-bool TicTacToe::check_board_full() const {
-    for (auto peg : pegs) {
-        if (peg == " ") {
-            return false;
+        if (choice == 3)
+        {
+            game = make_unique<TicTacToe3>();
         }
-    }
-    return true;
+        else if (choice == 4)
+        {
+            game = make_unique<TicTacToe4>();
+        }
+
+        game->start_game(string(1, turn));
+        game->set_player_names(player1, player2);
+
+        do
+        {
+            cout << *game;
+            cin >> *game;
+            manager->save_game(game);
+        } while (!game->game_over());
+
+        cout << *game;
+        cout << "Winner: " << game->get_winner() << endl;
+    } while (continue_game());
+
+    cout << *manager;
+
+    return 0;
 }
 
-void TicTacToe::clear_board() {
-    for (auto& peg : pegs) {
-        peg = " ";
-    }
+
+bool continue_game()
+{
+    char choice;
+    cout << "Do you want to play again? (Y/N): ";
+    cin >> choice;
+    return choice == 'Y' || choice == 'y';
 }
